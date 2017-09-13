@@ -69,10 +69,10 @@ class Clause():
 class Literal():
   def __init__(self, var, sign):
     self.var = var # Integer, references a variable
-    self.sign = sign # Negated or not
+    self.sign = sign # sign of the literal, -1 or 1
 
 class Variable():
   def __init__(self, idx):
     self.idx = idx # Index of this variable
     self.assigned = False
-    self.value = None # True/False
+    self.value = None # -1 or 1

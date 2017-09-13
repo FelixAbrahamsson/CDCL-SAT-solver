@@ -3,10 +3,13 @@ import random
 import argparse
 import re
 
-RESULT_FILE = None
+RESULT_FILE = open('result.txt','w')
+
+## Added code:
+# Solver.check_pure_literal()
 
 if __debug__:
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.WARNING)
 
 
 class Solver(object):
@@ -49,6 +52,10 @@ class Solver(object):
 
     def _solve(self):
         """main solving function"""
+        # self.check_pure_literal()
+        # self.status=True
+        # return
+
         while True:
             conflict_clause = self.propagate()
             if isinstance(conflict_clause, Clause):
@@ -75,7 +82,12 @@ class Solver(object):
                     self.status = True
                     return
                 else:
-                    self.decide(next_lit)
+                    # Try to apply the pure literal rule
+                    if (self.check_pure_literal()):
+                        # print("PL rule fired!!")
+                        continue
+                    else:
+                        self.decide(next_lit)
 
         pass
 
@@ -107,6 +119,79 @@ class Solver(object):
                 blit.lit.assign(sign,self.level,reason)
                 if self.level != 0:
                     self.propagate_history[self.level].append(blit)
+
+    def check_pure_literal(self):
+        """ 
+        Tries to find a pure literal, if one is found the literal
+        is assigned the value that satisfies the clauses
+        Returns:
+            True if a pure literal was found
+            False otherwise
+        """
+
+        ## literal_counts is a map from literal id to a 2x1 array
+        ## First element in the array is a count over nr of occurances
+        ## of the negated literal in clauses, second element is a count
+        ## over occurances of the positive literal in clauses
+        ## This can be made more efficient by not recreating the objects
+        ## every time the function is executed, but I think the 
+        ## improvement would be negligible
+        literal_counts = {}
+        for lit in self.litlist:
+            # Indexed by id
+            lit_id = lit.get_id()
+            literal_counts[lit_id] = [0,0]
+
+        for c in self.clause_list:
+
+            ## Check if clause is not already satisfied:
+            clause_satisfied = False
+            for blit in c.bindlit_list:
+                lit = blit.lit
+                if not lit.is_unassigned():
+                    if lit.get_sign() == blit._sign:
+                        ## Literal is True ==> clause satisfied
+                        clause_satisfied = True
+                        break
+
+            if not clause_satisfied:
+                for blit in c.bindlit_list:
+                    ## Clause is not satisfied yet, go through every unassigned 
+                    ## literal in the clause and add it to the counter
+                    if blit.lit.is_unassigned():
+                        lit_id = blit.lit.get_id()
+                        if blit._sign == False:
+                            # Negated literal
+                            literal_counts[lit_id][0] = literal_counts[lit_id][0] + 1
+                        else:
+                            literal_counts[lit_id][1] = literal_counts[lit_id][1] + 1
+
+        ## Now check if any of the literals are pure
+        found_pure_literal = False
+        for key in literal_counts:
+            count = literal_counts[key]
+            lit = self.litlist.get(key)
+            # print(count)
+            if count[0] == 0 and count[1] != 0:
+                ## Strictly positive literal, assign it True
+                self.assign_pure_literal(lit, True)
+                found_pure_literal = True
+            elif count[1] == 0 and count[0] != 0:
+                ## Strictly negative literal, assignedn it False
+                self.assign_pure_literal(lit, False)
+                found_pure_literal = True
+
+        return found_pure_literal
+
+    def assign_pure_literal(self, lit, sign):
+
+        self.level += 1
+        lit.assign(sign, self.level)
+        self.decide_history[self.level] = lit
+        self.propagate_history[self.level] = []
+        logging.debug('pure_literal: %s'%lit)
+        logging.debug(str(self))
+
 
     def analyze(self, conflict_clause):
         """analyze conflicting clause

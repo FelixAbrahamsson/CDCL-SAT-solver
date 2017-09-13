@@ -38,7 +38,7 @@ class Solver(object):
 
         # sign when literal decided.
         self.ASSIGN_DEFAULT = True
-        self.pickup_type = "random"
+        self.choose_type = "random"
 
     def solve(self):
         """start solving
@@ -332,7 +332,7 @@ class Solver(object):
         """select next decide literal from unassigned literal.
         """
 
-        if self.pickup_type == 'random':
+        if self.choose_type == 'random':
             # random
             l = [x for x in self.litlist if x.is_unassigned()]
             if len(l) == 0:

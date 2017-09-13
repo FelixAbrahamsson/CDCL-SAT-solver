@@ -40,11 +40,28 @@ class Solver(object):
         self.ASSIGN_DEFAULT = True
         self.choose_type = "random"
 
+        # J function for the Jeroslow-Wang heuristic
+        # represented as a dictionary from l = (variable id, sign) to J(l)
+        self.jw = {}
+
+    def precompute_jw(self):
+        for lit in self.litlist:
+            lit_id = lit.get_id()
+            self.jw[(lit_id, False)] = 0.0
+            self.jw[(lit_id,  True)] = 0.0
+        for c in self.clause_list:
+            length = len(c)
+            for blit in c.bindlit_list:
+                key = (blit.lit.get_id(), blit.get_raw_sign())
+                self.jw[key] = self.jw[key] + 2**(-length)
+
     def solve(self):
         """start solving
         try solving while unsat or sat
         return sat or unsat as solver.status
         """
+        if self.choose_type == "jw" :
+            self.precompute_jw()
         logging.debug("solve")
         logging.info(str(self))
         while self.is_running():
@@ -76,7 +93,7 @@ class Solver(object):
                     save_result(self)
 
                 # NO CONFLICT
-                next_lit = self.popup_literal()
+                (next_lit, sign) = self.popup_literal()
                 if next_lit is None:
                     # ALL ASSIGNED, SATISFIED
                     self.status = True
@@ -87,7 +104,7 @@ class Solver(object):
                         # print("PL rule fired!!")
                         continue
                     else:
-                        self.decide(next_lit)
+                        self.decide(next_lit, sign)
 
         pass
 
@@ -295,14 +312,16 @@ class Solver(object):
             if not lit.is_unassigned() and (lit.get_level() > backjump_level):
                 lit.set_default()
 
-    def decide(self, decide_literal):
+    def decide(self, decide_literal, sign):
         """decide literal as ASSIGN_DEFAULT
         Arguments:
             decide_literal(Lit)
         """
         assert isinstance(decide_literal, Lit)
         self.level += 1
-        decide_literal.assign(self.ASSIGN_DEFAULT, self.level)
+        if sign == None:
+            sign = self.ASSIGN_DEFAULT
+        decide_literal.assign(sign, self.level)
         self.decide_history[self.level] = decide_literal
         self.propagate_history[self.level] = []
         logging.debug('decide: %s'%decide_literal)
@@ -336,16 +355,27 @@ class Solver(object):
             # random
             l = [x for x in self.litlist if x.is_unassigned()]
             if len(l) == 0:
-                return None
+                return (None, None)
             else:
                 i = random.randint(0,len(l)-1)
-                return l[i]
-        else:
+                return (l[i], None)
+        elif self.choose_type == 'order':
             # order
             for lit in self.litlist:
                 if lit.is_unassigned():
-                    return lit
-            return None
+                    return (lit, None)
+            return (None, None)
+        elif self.choose_type == 'jw':
+            best = float("-inf")
+            best_lit = (None, None)
+            for lit in self.litlist:
+                if lit.is_unassigned():
+                    for sign in [False, True]:
+                        score = self.jw[(lit.get_id(),sign)]
+                        if score > best:
+                            best = score
+                            best_lit = (lit, sign)
+            return best_lit
 
     def print_result(self):
         """print satisfied or unsatisfied"""
@@ -707,8 +737,8 @@ def argument_parse():
                         help='cnf file name',
                         )
     parser.add_argument('--choose-type',
-                        choices=['random','order'],
-                        help='how decide literal choose',
+                        choices=['random','order','jw'],
+                        help='variable selection',
                         default='random',
                         )
     parser.add_argument('--assign-default',

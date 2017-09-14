@@ -53,6 +53,12 @@ class Solver(object):
         self.PL_interval = 5
         self.PL_interval_counter = 1
 
+        # Restart settings
+        self.use_random_restart = True
+        self.restart_interval = 500 # after this many conflicts a restart will be performed
+        self._restarts = 0 # amount of restarts performed so far
+
+
     def precompute_jw(self):
         for lit in self.litlist:
             lit_id = lit.get_id()
@@ -88,16 +94,24 @@ class Solver(object):
                     # CONTRADICTION
                     self.status = False
                     return
-                backjump_level, learnt_clause = self.analyze(conflict_clause)
-                self.add_clause(learnt_clause)
+
+                if (self.use_random_restart and self.conflict_count >= 
+                        (self._restarts + 1) * self.restart_interval):
+                    ## Restart from 0 if too many backjumps have been performed
+                    backjump_level = self.root_level
+                    save_result(self)
+                    self._restarts += 1
+                    print("Restarting search from decision level "+str(backjump_level))
+                else:
+                    ## Backjump to the conflict
+                    backjump_level, learnt_clause = self.analyze(conflict_clause)
+                    self.add_clause(learnt_clause)
+
                 self.cancel_until(backjump_level)
                 self.level = backjump_level
+
             else:
                 self.decide_count += 1
-
-                # restart here
-                if self.decide_count % 1000 == 0:
-                    save_result(self)
 
                 # NO CONFLICT
                 (next_lit, sign) = self.popup_literal()

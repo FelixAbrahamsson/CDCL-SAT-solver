@@ -2,6 +2,7 @@ import logging
 import random
 import argparse
 import re
+import timeit
 
 RESULT_FILE = open('result.txt','w')
 
@@ -44,6 +45,14 @@ class Solver(object):
         # represented as a dictionary from l = (variable id, sign) to J(l)
         self.jw = {}
 
+        # True/False determines whether to print the solution after solving
+        self.print_solution = False
+
+        # Integer, determines how often pure literal rule should be applied
+        # If None, it's never applied
+        self.PL_interval = 5
+        self.PL_interval_counter = 1
+
     def precompute_jw(self):
         for lit in self.litlist:
             lit_id = lit.get_id()
@@ -67,11 +76,9 @@ class Solver(object):
         while self.is_running():
             self._solve()
 
+
     def _solve(self):
         """main solving function"""
-        # self.check_pure_literal()
-        # self.status=True
-        # return
 
         while True:
             conflict_clause = self.propagate()
@@ -100,8 +107,15 @@ class Solver(object):
                     return
                 else:
                     # Try to apply the pure literal rule
-                    if (self.check_pure_literal()):
-                        # print("PL rule fired!!")
+                    found_PL = False
+                    if self.PL_interval != None:
+                        if self.PL_interval == self.PL_interval_counter:
+                            # Apply pure literal rule
+                            found_PL = self.check_pure_literal()
+                            self.PL_interval_counter = 1
+                        else:
+                            self.PL_interval_counter += 1
+                    if found_PL:
                         continue
                     else:
                         self.decide(next_lit, sign)
@@ -762,8 +776,12 @@ if __name__ == '__main__':
     solver.choose_type = arguments.choose_type
     RESULT_FILE = arguments.result_path
 
+    start = timeit.default_timer()
     solver.solve()
-    print(solver)
+    stop = timeit.default_timer()
+    if solver.print_solution:
+        print(solver)
 
     solver.print_result()
     save_result(solver)
+    print("Time taken: " + str(stop-start))

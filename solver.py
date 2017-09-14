@@ -54,9 +54,14 @@ class Solver(object):
         self.PL_interval_counter = 1
 
         # Restart settings
+        # DOES NOT WORK WITH JW HEURISTIC
         self.use_random_restart = True
         self.restart_interval = 500 # after this many conflicts a restart will be performed
         self._restarts = 0 # amount of restarts performed so far
+
+        # If a learnt clause exceeds this length it will not be retained
+        # DOES NOT WORK WITH JW HEURISTIC
+        self.learnt_clause_max_length = 1000 
 
 
     def precompute_jw(self):
@@ -105,7 +110,10 @@ class Solver(object):
                 else:
                     ## Backjump to the conflict
                     backjump_level, learnt_clause = self.analyze(conflict_clause)
-                    self.add_clause(learnt_clause)
+                    if (len(learnt_clause) <= self.learnt_clause_max_length):
+                        ## Only add clause if it does not exceed max length
+                        self.add_clause(learnt_clause)
+
 
                 self.cancel_until(backjump_level)
                 self.level = backjump_level

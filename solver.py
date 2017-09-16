@@ -8,6 +8,16 @@ RESULT_FILE = open('result.txt','w')
 
 ## Added code:
 # Solver.check_pure_literal()
+# Solver.assign_pure_literal
+# Solver.precompute_jw()
+# Solver.check_for_conflicts()
+# Solver.jw_heuristic()
+# Solver.dlis_heuristic()
+
+## Modified code
+# Solver._solve()
+# Solver.__init__()
+
 
 if __debug__:
     logging.basicConfig(level=logging.WARNING)
@@ -214,10 +224,11 @@ class Solver(object):
         literal_counts = {}
         for lit in self.litlist:
             # Indexed by id
-            lit_id = lit.get_id()
-            literal_counts[lit_id] = [0,0]
+            if lit.is_unassigned():
+                lit_id = lit.get_id()
+                literal_counts[lit_id] = [0,0]
 
-        for c in self.clause_list:
+        for c in self.clause_list+self.learnt_list:
 
             ## Check if clause is not already satisfied:
             clause_satisfied = False
@@ -423,16 +434,77 @@ class Solver(object):
                     return (lit, None)
             return (None, None)
         elif self.choose_type == 'jw':
-            best = float("-inf")
-            best_lit = (None, None)
-            for lit in self.litlist:
-                if lit.is_unassigned():
-                    for sign in [False, True]:
-                        score = self.jw[(lit.get_id(),sign)]
-                        if score > best:
-                            best = score
-                            best_lit = (lit, sign)
+            return self.jw_heuristic()
+        elif self.choose_type == 'dlis':
+            return self.dlis_heuristic()
+            
+    def jw_heuristic(self):
+        best = float("-inf")
+        best_lit = (None, None)
+        for lit in self.litlist:
+            if lit.is_unassigned():
+                for sign in [False, True]:
+                    score = self.jw[(lit.get_id(),sign)]
+                    if score > best:
+                        best = score
+                        best_lit = (lit, sign)
+        return best_lit
+
+    def dlis_heuristic(self):
+        ## Keep a count for each literal+sign how many new clauses
+        ## an assignment would satisfy
+        literal_counts = {}
+        for lit in self.litlist:
+            # Indexed by id
+            if (lit.is_unassigned()):
+                lit_id = lit.get_id()
+                literal_counts[lit_id] = [0,0]
+
+        for c in self.clause_list+self.learnt_list:
+
+            ## Check if clause is not already satisfied:
+            clause_satisfied = False
+            for blit in c.bindlit_list:
+                lit = blit.lit
+                if not lit.is_unassigned():
+                    if lit.get_sign() == blit._sign:
+                        ## Literal is True ==> clause satisfied
+                        clause_satisfied = True
+                        break
+
+            if not clause_satisfied:
+                for blit in c.bindlit_list:
+                    ## Clause is not satisfied yet, go through every unassigned 
+                    ## literal in the clause and add it to the counter
+                    if blit.lit.is_unassigned():
+                        lit_id = blit.lit.get_id()
+                        if blit._sign == False:
+                            # Negated literal
+                            literal_counts[lit_id][0] = literal_counts[lit_id][0] + 1
+                        else:
+                            literal_counts[lit_id][1] = literal_counts[lit_id][1] + 1
+        ## Find the literal + assignment with largest nr of satisfiable clauses
+        max_clauses = 0
+        best_lit = (None, None)
+        for key in literal_counts:
+            if literal_counts[key][0] > max_clauses:
+                best_lit = (key, False)
+                max_clauses = literal_counts[key][0]
+            if literal_counts[key][1] > max_clauses:
+                best_lit = (key, True)
+                max_clauses = literal_counts[key][1]
+
+        if best_lit[0] != None:
+            return (self.litlist.get(best_lit[0]), best_lit[1])
+        else:
+            # Instance already satisfied, just assign arbitrarily
+            for key in literal_counts:
+                return (self.litlist.get(key), True)
+            # No literals left, return None
             return best_lit
+
+
+
 
     def print_result(self):
         """print satisfied or unsatisfied"""
@@ -794,7 +866,7 @@ def argument_parse():
                         help='cnf file name',
                         )
     parser.add_argument('--choose-type',
-                        choices=['random','order','jw'],
+                        choices=['random','order','jw','dlis'],
                         help='variable selection',
                         default='random',
                         )

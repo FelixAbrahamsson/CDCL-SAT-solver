@@ -38,6 +38,7 @@ class Solver(object):
         # key -> level, value -> literal list
         self.propagate_history = {}
         self.decide_history = {}
+        self.previous_assignments = {} # key -> level, value -> {(literal,sign) -> True}
 
         # True  -> satisfied
         # False -> unsatisfied
@@ -69,14 +70,12 @@ class Solver(object):
         self.UP_interval_counter = 1
 
         # Restart settings
-        # DOES NOT WORK WITH DETERMINISTIC VARIABLE SELECTION
         self.use_random_restart = True
         self.restart_interval = 1000 # after this many conflicts a restart will be performed
         self._restarts = 0 # amount of restarts performed so far
 
         # If a learnt clause exceeds this length it will not be retained
         # Determines amount of CDCL to be used
-        # DOES NOT WORK WITH DETERMINISTIC VARIABLE SELECTION
         self.learnt_clause_max_length = 1000
 
 
@@ -108,6 +107,10 @@ class Solver(object):
         """main solving function"""
 
         while True:
+
+            ## Keep previous_assignments updated with an empty dictionary
+            if self.level not in self.previous_assignments:
+                self.previous_assignments[self.level] = {}
 
             ## Start by applying unit propagation
             if self.UP_interval != None and self.UP_interval == self.UP_interval_counter:
@@ -161,13 +164,19 @@ class Solver(object):
 
                     (next_lit, sign) = self.popup_literal()
                     if next_lit is None:
-                        ## ALL ASSIGNED, SATISFIED
-                        self.status = True
-                        return
+                        unassigned_literals = [x for x in self.litlist if x.is_unassigned()]
+                        if len(unassigned_literals) == 0:
+                            ## ALL ASSIGNED, SATISFIED
+                            self.status = True
+                            return
+                        else:
+                            ## Tried everything at this level, backjump 1 level
+                            backjump_level = self.level-1
+                            self.cancel_until(backjump_level)
+                            self.level = backjump_level
                     else:
                         self.decide(next_lit, sign)
 
-        pass
 
     def check_for_conflicts(self):
         for c in self.clause_list+self.learnt_list:
@@ -200,8 +209,10 @@ class Solver(object):
 
             #propagate literals
             for blit, reason in propagatable_list:
+
                 sign = blit.get_raw_sign()
                 blit.lit.assign(sign,self.level,reason)
+
                 if self.level != 0:
                     self.propagate_history[self.level].append(blit)
 
@@ -257,12 +268,13 @@ class Solver(object):
         for key in literal_counts:
             count = literal_counts[key]
             lit = self.litlist.get(key)
-            # print(count)
-            if count[0] == 0 and count[1] != 0:
+            if (lit,True) not in self.previous_assignments[self.level] and (
+                    count[0] == 0 and count[1] != 0):
                 ## Strictly positive literal, assign it True
                 self.assign_pure_literal(lit, True)
                 found_pure_literal = True
-            elif count[1] == 0 and count[0] != 0:
+            elif (lit,False) not in self.previous_assignments[self.level] and (
+                    count[1] == 0 and count[0] != 0):
                 ## Strictly negative literal, assignedn it False
                 self.assign_pure_literal(lit, False)
                 found_pure_literal = True
@@ -271,7 +283,15 @@ class Solver(object):
 
     def assign_pure_literal(self, lit, sign):
 
+        ## Remember this assignment before incrementing level
+        if self.level not in self.previous_assignments:
+            self.previous_assignments[self.level] = {}
+
+        self.previous_assignments[self.level][(lit,sign)] = True
+
         self.level += 1
+        self.previous_assignments[self.level] = {}
+
         lit.assign(sign, self.level)
         self.decide_history[self.level] = lit
         self.propagate_history[self.level] = []
@@ -379,6 +399,10 @@ class Solver(object):
         for lit in self.litlist:
             if not lit.is_unassigned() and (lit.get_level() > backjump_level):
                 lit.set_default()
+        keys = list(self.previous_assignments)
+        for key in keys:
+            if key > backjump_level+1:
+                del self.previous_assignments[key]
 
     def decide(self, decide_literal, sign):
         """decide literal as ASSIGN_DEFAULT
@@ -386,6 +410,13 @@ class Solver(object):
             decide_literal(Lit)
         """
         assert isinstance(decide_literal, Lit)
+
+        ## Remember this assignment before incrementing level
+        if self.level not in self.previous_assignments:
+            self.previous_assignments[self.level] = {}
+
+        self.previous_assignments[self.level][(decide_literal,sign)] = True
+
         self.level += 1
         if sign == None:
             sign = self.ASSIGN_DEFAULT
@@ -445,7 +476,7 @@ class Solver(object):
             if lit.is_unassigned():
                 for sign in [False, True]:
                     score = self.jw[(lit.get_id(),sign)]
-                    if score > best:
+                    if score > best and (lit,sign) not in self.previous_assignments[self.level]:
                         best = score
                         best_lit = (lit, sign)
         return best_lit
@@ -487,23 +518,26 @@ class Solver(object):
         max_clauses = 0
         best_lit = (None, None)
         for key in literal_counts:
-            if literal_counts[key][0] > max_clauses:
-                best_lit = (key, False)
+            lit = self.litlist.get(key)
+            if (lit,False) not in self.previous_assignments[self.level] and (
+                literal_counts[key][0] > max_clauses):
+
+                best_lit = (lit, False)
                 max_clauses = literal_counts[key][0]
-            if literal_counts[key][1] > max_clauses:
-                best_lit = (key, True)
+            if (lit,True) not in self.previous_assignments[self.level] and (
+                literal_counts[key][1] > max_clauses):
+
+                best_lit = (lit, True)
                 max_clauses = literal_counts[key][1]
 
         if best_lit[0] != None:
-            return (self.litlist.get(best_lit[0]), best_lit[1])
+            return best_lit
         else:
             # Instance already satisfied, just assign arbitrarily
             for key in literal_counts:
                 return (self.litlist.get(key), True)
             # No literals left, return None
             return best_lit
-
-
 
 
     def print_result(self):

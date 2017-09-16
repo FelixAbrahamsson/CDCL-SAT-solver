@@ -53,15 +53,21 @@ class Solver(object):
         self.PL_interval = 5
         self.PL_interval_counter = 1
 
+        # Determines how often unit propagation is applied
+        # If None, it's never applied
+        self.UP_interval = 1
+        self.UP_interval_counter = 1
+
         # Restart settings
-        # DOES NOT WORK WITH JW HEURISTIC
+        # DOES NOT WORK WITH DETERMINISTIC VARIABLE SELECTION
         self.use_random_restart = True
-        self.restart_interval = 500 # after this many conflicts a restart will be performed
+        self.restart_interval = 1000 # after this many conflicts a restart will be performed
         self._restarts = 0 # amount of restarts performed so far
 
         # If a learnt clause exceeds this length it will not be retained
-        # DOES NOT WORK WITH JW HEURISTIC
-        self.learnt_clause_max_length = 1000 
+        # Determines amount of CDCL to be used
+        # DOES NOT WORK WITH DETERMINISTIC VARIABLE SELECTION
+        self.learnt_clause_max_length = 1000
 
 
     def precompute_jw(self):
@@ -69,7 +75,7 @@ class Solver(object):
             lit_id = lit.get_id()
             self.jw[(lit_id, False)] = 0.0
             self.jw[(lit_id,  True)] = 0.0
-        for c in self.clause_list:
+        for c in self.clause_list+self.learnt_list:
             length = len(c)
             for blit in c.bindlit_list:
                 key = (blit.lit.get_id(), blit.get_raw_sign())
@@ -92,11 +98,21 @@ class Solver(object):
         """main solving function"""
 
         while True:
-            conflict_clause = self.propagate()
+
+            ## Start by applying unit propagation
+            if self.UP_interval != None and self.UP_interval == self.UP_interval_counter:
+                ## Apply unit propagation
+                conflict_clause = self.propagate()
+                self.UP_interval_counter = 1
+            else:
+                ## No UP, must still check for conflicts
+                conflict_clause = self.check_for_conflicts()
+                self.UP_interval_counter += 1
+
             if isinstance(conflict_clause, Clause):
                 self.conflict_count += 1
                 if self.level == self.root_level:
-                    # CONTRADICTION
+                    ## CONTRADICTION
                     self.status = False
                     return
 
@@ -113,36 +129,42 @@ class Solver(object):
                     if (len(learnt_clause) <= self.learnt_clause_max_length):
                         ## Only add clause if it does not exceed max length
                         self.add_clause(learnt_clause)
-
-
                 self.cancel_until(backjump_level)
                 self.level = backjump_level
 
             else:
-                self.decide_count += 1
-
-                # NO CONFLICT
-                (next_lit, sign) = self.popup_literal()
-                if next_lit is None:
-                    # ALL ASSIGNED, SATISFIED
-                    self.status = True
-                    return
+                ## No conflict, or no UP applied
+                ## Try to apply the pure literal rule
+                found_PL = False
+                if self.PL_interval != None:
+                    if self.PL_interval == self.PL_interval_counter:
+                        # Apply pure literal rule
+                        found_PL = self.check_pure_literal()
+                        self.PL_interval_counter = 1
+                    else:
+                        self.PL_interval_counter += 1
+                if found_PL:
+                    continue
                 else:
-                    # Try to apply the pure literal rule
-                    found_PL = False
-                    if self.PL_interval != None:
-                        if self.PL_interval == self.PL_interval_counter:
-                            # Apply pure literal rule
-                            found_PL = self.check_pure_literal()
-                            self.PL_interval_counter = 1
-                        else:
-                            self.PL_interval_counter += 1
-                    if found_PL:
-                        continue
+                    ## Pure literal rule inapplicable, decide a literal via heuristic
+                    self.decide_count += 1
+
+                    (next_lit, sign) = self.popup_literal()
+                    if next_lit is None:
+                        ## ALL ASSIGNED, SATISFIED
+                        self.status = True
+                        return
                     else:
                         self.decide(next_lit, sign)
 
         pass
+
+    def check_for_conflicts(self):
+        for c in self.clause_list+self.learnt_list:
+            tmp = c.reload_watching_literal()
+            if tmp is False:
+                return c
+        return None
 
     def propagate(self):
         """propagate clause, reloading watching literal
@@ -294,7 +316,6 @@ class Solver(object):
                     lower_level_blit.add(blit)
 
             # if you need simplify blit list, write here.
-
             logging.debug('done: '+', '.join([str(x.id) for x in done_lit]))
             logging.debug('pool: '+', '.join([str(x) for x in pool_blit]))
             logging.debug('lower: '+', '.join([str(x) for x in lower_level_blit]))

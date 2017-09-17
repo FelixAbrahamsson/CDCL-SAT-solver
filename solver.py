@@ -30,7 +30,7 @@ class Solver(object):
     Solver object
     """
     def __init__(self):
-        self.litlist = LitList()
+        self.varlist = VarList()
         self.clause_list = []
         self.learnt_list = []
 
@@ -40,7 +40,7 @@ class Solver(object):
         # key -> level, value -> literal list
         self.propagate_history = {}
         self.decide_history = {}
-        self.previous_assignments = {} # key -> level, value -> {(literal,sign) -> True}
+        self.previous_assignments = {} # key -> level, value -> {(variable,sign) -> True}
 
         # True  -> satisfied
         # False -> unsatisfied
@@ -82,14 +82,14 @@ class Solver(object):
 
 
     def precompute_jw(self):
-        for lit in self.litlist:
-            lit_id = lit.get_id()
-            self.jw[(lit_id, False)] = 0.0
-            self.jw[(lit_id,  True)] = 0.0
+        for var in self.varlist:
+            var_id = var.get_id()
+            self.jw[(var_id, False)] = 0.0
+            self.jw[(var_id,  True)] = 0.0
         for c in self.clause_list+self.learnt_list:
             length = len(c)
-            for blit in c.bindlit_list:
-                key = (blit.lit.get_id(), blit.get_raw_sign())
+            for lit in c.lit_list:
+                key = (lit.var.get_id(), lit.get_raw_sign())
                 self.jw[key] = self.jw[key] + 2**(-length)
 
     def solve(self):
@@ -161,13 +161,13 @@ class Solver(object):
                 if found_PL:
                     continue
                 else:
-                    ## Pure literal rule inapplicable, decide a literal via heuristic
+                    ## Pure literal rule inapplicable, decide a variable via heuristic
                     self.decide_count += 1
 
-                    (next_lit, sign) = self.popup_literal()
-                    if next_lit is None:
-                        unassigned_literals = [x for x in self.litlist if x.is_unassigned()]
-                        if len(unassigned_literals) == 0:
+                    (next_var, sign) = self.popup_variable()
+                    if next_var is None:
+                        unassigned_variables = [x for x in self.varlist if x.is_unassigned()]
+                        if len(unassigned_variables) == 0:
                             ## ALL ASSIGNED, SATISFIED
                             self.status = True
                             return
@@ -177,7 +177,7 @@ class Solver(object):
                             self.cancel_until(backjump_level)
                             self.level = backjump_level
                     else:
-                        self.decide(next_lit, sign)
+                        self.decide(next_var, sign)
 
 
     def check_for_conflicts(self):
@@ -201,7 +201,7 @@ class Solver(object):
                 tmp = c.reload_watching_literal()
                 if tmp is True:
                     continue
-                elif isinstance(tmp, BindLit):
+                elif isinstance(tmp, Lit):
                     propagatable_list.append((tmp,c))
                 elif tmp is False:
                     return c
@@ -209,95 +209,95 @@ class Solver(object):
             if len(propagatable_list) == 0:
                 return None
 
-            #propagate literals
-            for blit, reason in propagatable_list:
+            #propagate variables
+            for bvar, reason in propagatable_list:
 
-                sign = blit.get_raw_sign()
-                blit.lit.assign(sign,self.level,reason)
+                sign = bvar.get_raw_sign()
+                bvar.var.assign(sign,self.level,reason)
 
                 if self.level != 0:
-                    self.propagate_history[self.level].append(blit)
+                    self.propagate_history[self.level].append(bvar)
 
     def check_pure_literal(self):
         """ 
-        Tries to find a pure literal, if one is found the literal
+        Tries to find a pure literal, if one is found the variable
         is assigned the value that satisfies the clauses
         Returns:
             True if a pure literal was found
             False otherwise
         """
 
-        ## literal_counts is a map from literal id to a 2x1 array
+        ## variable_counts is a map from variable id to a 2x1 array
         ## First element in the array is a count over nr of occurances
         ## of the negated literal in clauses, second element is a count
         ## over occurances of the positive literal in clauses
         ## This can be made more efficient by not recreating the objects
         ## every time the function is executed, but I think the 
         ## improvement would be negligible
-        literal_counts = {}
-        for lit in self.litlist:
+        variable_counts = {}
+        for var in self.varlist:
             # Indexed by id
-            if lit.is_unassigned():
-                lit_id = lit.get_id()
-                literal_counts[lit_id] = [0,0]
+            if var.is_unassigned():
+                var_id = var.get_id()
+                variable_counts[var_id] = [0,0]
 
         for c in self.clause_list+self.learnt_list:
 
             ## Check if clause is not already satisfied:
             clause_satisfied = False
-            for blit in c.bindlit_list:
-                lit = blit.lit
-                if not lit.is_unassigned():
-                    if lit.get_sign() == blit._sign:
-                        ## Literal is True ==> clause satisfied
+            for bvar in c.lit_list:
+                var = bvar.var
+                if not var.is_unassigned():
+                    if var.get_sign() == bvar._sign:
+                        ## Vareral is True ==> clause satisfied
                         clause_satisfied = True
                         break
 
             if not clause_satisfied:
-                for blit in c.bindlit_list:
+                for bvar in c.lit_list:
                     ## Clause is not satisfied yet, go through every unassigned 
-                    ## literal in the clause and add it to the counter
-                    if blit.lit.is_unassigned():
-                        lit_id = blit.lit.get_id()
-                        if blit._sign == False:
-                            # Negated literal
-                            literal_counts[lit_id][0] = literal_counts[lit_id][0] + 1
+                    ## variable in the clause and add it to the counter
+                    if bvar.var.is_unassigned():
+                        var_id = bvar.var.get_id()
+                        if bvar._sign == False:
+                            # Negated variable
+                            variable_counts[var_id][0] = variable_counts[var_id][0] + 1
                         else:
-                            literal_counts[lit_id][1] = literal_counts[lit_id][1] + 1
+                            variable_counts[var_id][1] = variable_counts[var_id][1] + 1
 
-        ## Now check if any of the literals are pure
+        ## Now check if any of the variables are pure
         found_pure_literal = False
-        for key in literal_counts:
-            count = literal_counts[key]
-            lit = self.litlist.get(key)
-            if (lit,True) not in self.previous_assignments[self.level] and (
+        for key in variable_counts:
+            count = variable_counts[key]
+            var = self.varlist.get(key)
+            if (var,True) not in self.previous_assignments[self.level] and (
                     count[0] == 0 and count[1] != 0):
-                ## Strictly positive literal, assign it True
-                self.assign_pure_literal(lit, True)
+                ## Strictly positive variable, assign it True
+                self.assign_pure_literal(var, True)
                 found_pure_literal = True
-            elif (lit,False) not in self.previous_assignments[self.level] and (
+            elif (var,False) not in self.previous_assignments[self.level] and (
                     count[1] == 0 and count[0] != 0):
-                ## Strictly negative literal, assignedn it False
-                self.assign_pure_literal(lit, False)
+                ## Strictly negative variable, assignedn it False
+                self.assign_pure_literal(var, False)
                 found_pure_literal = True
 
         return found_pure_literal
 
-    def assign_pure_literal(self, lit, sign):
+    def assign_pure_literal(self, var, sign):
 
         ## Remember this assignment before incrementing level
         if self.level not in self.previous_assignments:
             self.previous_assignments[self.level] = {}
 
-        self.previous_assignments[self.level][(lit,sign)] = True
+        self.previous_assignments[self.level][(var,sign)] = True
 
         self.level += 1
         self.previous_assignments[self.level] = {}
 
-        lit.assign(sign, self.level)
-        self.decide_history[self.level] = lit
+        var.assign(sign, self.level)
+        self.decide_history[self.level] = var
         self.propagate_history[self.level] = []
-        logging.debug('pure_literal: %s'%lit)
+        logging.debug('pure_literal: %s'%var)
         logging.debug(str(self))
 
 
@@ -312,21 +312,21 @@ class Solver(object):
         """
 
         # implication graph in the level
-        LIT_HISTORY = [self.decide_history[self.level]]+[x.lit for x in self.propagate_history[self.level]]
-        def _pop_next_pointer(blit_set):
-            # pop latest literal on implication graph from blit_set
+        VAR_HISTORY = [self.decide_history[self.level]]+[x.var for x in self.propagate_history[self.level]]
+        def _pop_next_pointer(bvar_set):
+            # pop latest variable on implication graph from bvar_set
             #
             # Arguments:
-            #   blit_set(set) : BindLit set
+            #   bvar_set(set) : Var set
             # Returns:
-            #   (next_literal, bind_literal_list)
-            #   next_literal(Lit) : latest literal on implication graph
-            #   bind_literal_list(list) : other bind literals
-            data = [x.lit for x in blit_set]
-            for lit in reversed(LIT_HISTORY):
-                if lit in data:
-                    others = [x for x in blit_set if lit is not x.lit]
-                    return lit, others
+            #   (next_variable, bind_variable_list)
+            #   next_variable(Var) : latest variable on implication graph
+            #   bind_variable_list(list) : other bind variables
+            data = [x.var for x in bvar_set]
+            for var in reversed(VAR_HISTORY):
+                if var in data:
+                    others = [x for x in bvar_set if var is not x.var]
+                    return var, others
             assert False, "not reachable"
 
         logging.debug(self)
@@ -334,57 +334,57 @@ class Solver(object):
         logging.debug("level %d %s"%(self.level, self.decide_history[self.level]))
         logging.debug("propagate_history lv.%d: %s"%(self.level,', '.join([str(x)for x in self.propagate_history[self.level]])))
 
-        lower_level_blit = set()
-        current_level_blit = set()
-        done_lit = set()
-        pool_blit = [x for x in conflict_clause.get_bindlit_list()]
+        lower_level_bvar = set()
+        current_level_bvar = set()
+        done_var = set()
+        pool_bvar = [x for x in conflict_clause.get_lit_list()]
 
         while True:
             #SEPARATING
-            for blit in pool_blit:
-                assert blit.lit.get_level() <= self.level, "future level is reachable"
-                if blit.lit.get_level() == self.level:
-                    current_level_blit.add(blit)
+            for bvar in pool_bvar:
+                assert bvar.var.get_level() <= self.level, "future level is reachable"
+                if bvar.var.get_level() == self.level:
+                    current_level_bvar.add(bvar)
                 else:
-                    lower_level_blit.add(blit)
+                    lower_level_bvar.add(bvar)
 
-            # if you need simplify blit list, write here.
-            logging.debug('done: '+', '.join([str(x.id) for x in done_lit]))
-            logging.debug('pool: '+', '.join([str(x) for x in pool_blit]))
-            logging.debug('lower: '+', '.join([str(x) for x in lower_level_blit]))
-            logging.debug('current: '+', '.join([str(x) for x in current_level_blit]))
-            assert len(current_level_blit) >= 1, "arienai"
-            if len(current_level_blit) == 1:
+            # if you need simplify bvar list, write here.
+            logging.debug('done: '+', '.join([str(x.id) for x in done_var]))
+            logging.debug('pool: '+', '.join([str(x) for x in pool_bvar]))
+            logging.debug('lower: '+', '.join([str(x) for x in lower_level_bvar]))
+            logging.debug('current: '+', '.join([str(x) for x in current_level_bvar]))
+            assert len(current_level_bvar) >= 1, "arienai"
+            if len(current_level_bvar) == 1:
                 # find UIP
                 break
 
-            head_lit, tail_blit = _pop_next_pointer(current_level_blit)
+            head_var, tail_bvar = _pop_next_pointer(current_level_bvar)
 
-            done_lit.add(head_lit)
-            pool_blit = set([x for x in head_lit.get_reason().get_bindlit_list()if x.lit not in done_lit])
-            current_level_blit = set(tail_blit)
+            done_var.add(head_var)
+            pool_bvar = set([x for x in head_var.get_reason().get_lit_list()if x.var not in done_var])
+            current_level_bvar = set(tail_bvar)
 
-        learnt_list = [x.lit for x in list(current_level_blit) + list(lower_level_blit)]
-        if lower_level_blit:
-            backjump_level = max([x.lit.get_level()for x in lower_level_blit])
+        learnt_list = [x.var for x in list(current_level_bvar) + list(lower_level_bvar)]
+        if lower_level_bvar:
+            backjump_level = max([x.var.get_level()for x in lower_level_bvar])
         else:
             backjump_level = self.level-1
         learnt_clause = self._gen_learnt_clause(learnt_list)
         return backjump_level, learnt_clause
 
-    def _gen_learnt_clause(self, lit_list):
-        """generate learnt clause from literal list.
+    def _gen_learnt_clause(self, var_list):
+        """generate learnt clause from variable list.
         Arguments:
-            lit_list(list) : literal list, it will convert to learnt clause
+            var_list(list) : variable list, it will convert to learnt clause
         Returns:
             learnt_clause(Clause)
         """
-        blit_list = []
-        for lit in lit_list:
-            sign = lit.get_sign()
+        bvar_list = []
+        for var in var_list:
+            sign = var.get_sign()
             assert isinstance(sign, bool), 'unassigned is arienai %s'%sign
-            blit_list.append(lit.get_bind_lit(not sign))
-        return Clause(blit_list, is_learnt=True)
+            bvar_list.append(var.get_bind_var(not sign))
+        return Clause(bvar_list, is_learnt=True)
 
     def cancel_until(self, backjump_level):
         """rollback to backjump_level
@@ -398,49 +398,49 @@ class Solver(object):
         for key in keys:
             if key > backjump_level:
                 del self.decide_history[key]
-        for lit in self.litlist:
-            if not lit.is_unassigned() and (lit.get_level() > backjump_level):
-                lit.set_default()
+        for var in self.varlist:
+            if not var.is_unassigned() and (var.get_level() > backjump_level):
+                var.set_default()
         keys = list(self.previous_assignments)
         for key in keys:
             if key > backjump_level+1:
                 del self.previous_assignments[key]
 
-    def decide(self, decide_literal, sign):
-        """decide literal as ASSIGN_DEFAULT
+    def decide(self, decide_variable, sign):
+        """decide variable as ASSIGN_DEFAULT
         Arguments:
-            decide_literal(Lit)
+            decide_variable(Var)
         """
-        assert isinstance(decide_literal, Lit)
+        assert isinstance(decide_variable, Var)
 
         ## Remember this assignment before incrementing level
         if self.level not in self.previous_assignments:
             self.previous_assignments[self.level] = {}
 
-        self.previous_assignments[self.level][(decide_literal,sign)] = True
+        self.previous_assignments[self.level][(decide_variable,sign)] = True
 
         self.level += 1
         if sign == None:
             sign = self.ASSIGN_DEFAULT
-        decide_literal.assign(sign, self.level)
-        self.decide_history[self.level] = decide_literal
+        decide_variable.assign(sign, self.level)
+        self.decide_history[self.level] = decide_variable
         self.propagate_history[self.level] = []
-        logging.debug('decide: %s'%decide_literal)
+        logging.debug('decide: %s'%decide_variable)
         logging.debug(str(self))
 
     def add_clause(self, clause):
         """add clause to solver
-        if one literal clause is given,
-            assign literal without adding solver's clause list.
+        if one variable clause is given,
+            assign variable without adding solver's clause list.
         if learnt clause is given, add learnt clause list.
         Arguments:
             clause(Clause)
         """
         assert isinstance(clause, Clause)
         if len(clause) == 1:
-            blit = clause.get_bindlit_list()[0]
-            sign = blit.get_raw_sign()
-            blit.lit.assign(sign, self.root_level)
+            bvar = clause.get_lit_list()[0]
+            sign = bvar.get_raw_sign()
+            bvar.var.assign(sign, self.root_level)
             return
         clause.set_watching_literal((0,1))
         if clause.is_learnt():
@@ -448,13 +448,13 @@ class Solver(object):
         else:
             self.clause_list.append(clause)
 
-    def popup_literal(self):
-        """select next decide literal from unassigned literal.
+    def popup_variable(self):
+        """select next variable and possibly its sign from unassigned variable.
         """
 
         if self.choose_type == 'random':
             # random
-            l = [x for x in self.litlist if x.is_unassigned()]
+            l = [x for x in self.varlist if x.is_unassigned()]
             if len(l) == 0:
                 return (None, None)
             else:
@@ -462,9 +462,9 @@ class Solver(object):
                 return (l[i], None)
         elif self.choose_type == 'order':
             # order
-            for lit in self.litlist:
-                if lit.is_unassigned():
-                    return (lit, None)
+            for var in self.varlist:
+                if var.is_unassigned():
+                    return (var, None)
             return (None, None)
         elif self.choose_type == 'jw':
             return self.jw_heuristic()
@@ -473,73 +473,73 @@ class Solver(object):
             
     def jw_heuristic(self):
         best = float("-inf")
-        best_lit = (None, None)
-        for lit in self.litlist:
-            if lit.is_unassigned():
+        best_var = (None, None)
+        for var in self.varlist:
+            if var.is_unassigned():
                 for sign in [False, True]:
-                    score = self.jw[(lit.get_id(),sign)]
-                    if score > best and (lit,sign) not in self.previous_assignments[self.level]:
+                    score = self.jw[(var.get_id(),sign)]
+                    if score > best and (var,sign) not in self.previous_assignments[self.level]:
                         best = score
-                        best_lit = (lit, sign)
-        return best_lit
+                        best_var = (var, sign)
+        return best_var
 
     def dlis_heuristic(self):
-        ## Keep a count for each literal+sign how many new clauses
+        ## Keep a count for each variable+sign how many new clauses
         ## an assignment would satisfy
-        literal_counts = {}
-        for lit in self.litlist:
+        variable_counts = {}
+        for var in self.varlist:
             # Indexed by id
-            if (lit.is_unassigned()):
-                lit_id = lit.get_id()
-                literal_counts[lit_id] = [0,0]
+            if (var.is_unassigned()):
+                var_id = var.get_id()
+                variable_counts[var_id] = [0,0]
 
         for c in self.clause_list+self.learnt_list:
 
             ## Check if clause is not already satisfied:
             clause_satisfied = False
-            for blit in c.bindlit_list:
-                lit = blit.lit
-                if not lit.is_unassigned():
-                    if lit.get_sign() == blit._sign:
-                        ## Literal is True ==> clause satisfied
+            for bvar in c.lit_list:
+                var = bvar.var
+                if not var.is_unassigned():
+                    if var.get_sign() == bvar._sign:
+                        ## Vareral is True ==> clause satisfied
                         clause_satisfied = True
                         break
 
             if not clause_satisfied:
-                for blit in c.bindlit_list:
+                for bvar in c.lit_list:
                     ## Clause is not satisfied yet, go through every unassigned 
-                    ## literal in the clause and add it to the counter
-                    if blit.lit.is_unassigned():
-                        lit_id = blit.lit.get_id()
-                        if blit._sign == False:
-                            # Negated literal
-                            literal_counts[lit_id][0] = literal_counts[lit_id][0] + 1
+                    ## variable in the clause and add it to the counter
+                    if bvar.var.is_unassigned():
+                        var_id = bvar.var.get_id()
+                        if bvar._sign == False:
+                            # Negated variable
+                            variable_counts[var_id][0] = variable_counts[var_id][0] + 1
                         else:
-                            literal_counts[lit_id][1] = literal_counts[lit_id][1] + 1
-        ## Find the literal + assignment with largest nr of satisfiable clauses
+                            variable_counts[var_id][1] = variable_counts[var_id][1] + 1
+        ## Find the variable + assignment with largest nr of satisfiable clauses
         max_clauses = 0
-        best_lit = (None, None)
-        for key in literal_counts:
-            lit = self.litlist.get(key)
-            if (lit,False) not in self.previous_assignments[self.level] and (
-                literal_counts[key][0] > max_clauses):
+        best_var = (None, None)
+        for key in variable_counts:
+            var = self.varlist.get(key)
+            if (var,False) not in self.previous_assignments[self.level] and (
+                variable_counts[key][0] > max_clauses):
 
-                best_lit = (lit, False)
-                max_clauses = literal_counts[key][0]
-            if (lit,True) not in self.previous_assignments[self.level] and (
-                literal_counts[key][1] > max_clauses):
+                best_var = (var, False)
+                max_clauses = variable_counts[key][0]
+            if (var,True) not in self.previous_assignments[self.level] and (
+                variable_counts[key][1] > max_clauses):
 
-                best_lit = (lit, True)
-                max_clauses = literal_counts[key][1]
+                best_var = (var, True)
+                max_clauses = variable_counts[key][1]
 
-        if best_lit[0] != None:
-            return best_lit
+        if best_var[0] != None:
+            return best_var
         else:
             # Instance already satisfied, just assign arbitrarily
-            for key in literal_counts:
-                return (self.litlist.get(key), True)
-            # No literals left, return None
-            return best_lit
+            for key in variable_counts:
+                return (self.varlist.get(key), True)
+            # No variables left, return None
+            return best_var
 
 
     def print_result(self):
@@ -567,16 +567,16 @@ class Solver(object):
         string = ""
         for key in sorted(self.propagate_history.keys()):
             line = self.propagate_history[key]
-            lit = self.decide_history[key]
+            var = self.decide_history[key]
             string += 'lv.%03d '%key
-            string += '% 7d: '%lit.get_id()
+            string += '% 7d: '%var.get_id()
             string += ', '.join([str(x)for x in line])
             string += '\n'
         return string
 
     def __str__(self):
         string = "###############level:%d root_level:%d\n"%(self.level, self.root_level)
-        string += "####Literals\n"+"\n".join([str(x)for x in self.litlist])
+        string += "####Varerals\n"+"\n".join([str(x)for x in self.varlist])
         string += "\n\n"
         string += "####Clauses\n"+"\n".join([str(x)for x in self.clause_list])
         string += "\n\n"
@@ -587,32 +587,32 @@ class Solver(object):
         return string
 
 
-class Lit(object):
-    """Literal Object
+class Var(object):
+    """Variable Object
     Attributes:
         id(id): unique id
-        bindlits(dict): the literal's bind literal, key is True or False
-        sign(None or bool): literal's sign
+        lits(dict): the variable's bind variable, key is True or False
+        sign(None or bool): variable's sign
             None -- unassigned
             True -- assigned True
             False -- assigned False
         level(int): level when assigned
-        reason(None or Clause): if the literal is propagated, the reason clause
+        reason(None or Clause): if the variable is propagated, the reason clause
     """
     def __init__(self, id):
-        """initialize literal
+        """initialize variable
         Arguments:
-            id: literal unique id
+            id: variable unique id
         """
         self.id = id
-        self.bindlits = self._gen_bindlit()
+        self.lits = self._gen_lit()
         self.set_default()
 
     def assign(self, sign, level, reason=None):
-        """assign literal
+        """assign variable
         if propagated, set reason
         Arguments:
-            sign(bool): literal sign
+            sign(bool): variable sign
             level(int): decide or propagated level
             reason(Clause):(optical)if propagated, the reason clause
         """
@@ -633,9 +633,9 @@ class Lit(object):
     def get_sign(self):
         return self.sign
 
-    def get_bind_lit(self, sign):
+    def get_bind_var(self, sign):
         assert isinstance(sign, bool)
-        return self.bindlits[sign]
+        return self.lits[sign]
 
     def get_id(self):
         return self.id
@@ -649,10 +649,10 @@ class Lit(object):
     def is_unassigned(self):
         return self.sign is None
 
-    def _gen_bindlit(self):
+    def _gen_lit(self):
         res = {}
-        res[True] = BindLit(self, True)
-        res[False] = BindLit(self, False)
+        res[True] = Lit(self, True)
+        res[False] = Lit(self, False)
         return res
 
     def __str__(self):
@@ -665,45 +665,45 @@ class Lit(object):
 
 
 
-class LitList(object):
-    """literal list
+class VarList(object):
+    """variable list
     this object is one-index list.
-    so you can use literal.id and cnf number as index, when you generate this as expected.
+    so you can use variable.id and cnf number as index, when you generate this as expected.
     """
     def __init__(self):
         self.data = []
         pass
     def get(self, id):
-        """get literal from list
+        """get variable from list
         Arguments:
-            id(int): literal id, don't mind positive or negative
+            id(int): variable id, don't mind positive or negative
         Returns:
-            Lit
+            Var
         """
         assert isinstance(id, int)
         idx = abs(id)
         assert idx >= 1
         if len(self.data) < idx:
-            self._gen_lit(idx)
+            self._gen_var(idx)
         return self.data[idx-1]
 
-    def get_bind_lit(self, id):
-        """get binded literal from list
+    def get_bind_var(self, id):
+        """get bound variable from list
         Arguments:
-            id(int): literal id. if negative, returns False bind_lit.
+            id(int): variable id. if negative, returns False bind_var.
         Returns:
-            BindLit
+            Var
         """
-        lit = self.get(id)
+        var = self.get(id)
         if id < 0:
-            return lit.get_bind_lit(False)
+            return var.get_bind_var(False)
         else:
-            return lit.get_bind_lit(True)
+            return var.get_bind_var(True)
 
-    def _gen_lit(self, num):
+    def _gen_var(self, num):
         while len(self.data) < num:
             next_id = len(self.data)+1 # for 1-index
-            self.data.append(Lit(next_id))
+            self.data.append(Var(next_id))
 
     def __iter__(self):
         return iter(self.data)
@@ -713,37 +713,37 @@ class Clause(object):
     """Clause Object
     Attributes:
         id(int): unique id
-        bindlit_list(list): component bind literals
+        lit_list(list): component bind variables
         _is_learnt(bool)
-        watching_literal(tuble or None):
+        watching_literal(tuple or None):
             None -- not initialized
-            tuple(int, int) -- bindlit_list's index
+            tuple(int, int) -- lit_list's index
     """
     _num = 0
     # self.id : int
     # self.learnt : bool
 
-    def __init__(self, bindlit_list, is_learnt=False):
+    def __init__(self, lit_list, is_learnt=False):
         assert isinstance(is_learnt, bool)
         self.id = self._gen_id()
-        self.bindlit_list = sorted(bindlit_list,key=lambda y:y.lit.get_id())
+        self.lit_list = sorted(lit_list,key=lambda y:y.var.get_id())
         self._is_learnt = is_learnt
         self.watching_literal = None
         pass
 
     def reload_watching_literal(self):
-        """reload watching literal
+        """reload watching variable
         Returns:
-            bool or BindLit
-            BindLit -- propagatable literal
+            bool or Var
+            Var -- propagatable variable
             True    -- the clause is satisfied or unassigned
             False   -- conflict
         """
         res = self._check_watching_literal()
         for i, idx in enumerate(res):
             if idx is None:
-                for new_idx, blit in enumerate(self.bindlit_list):
-                    if (blit.get_sign() is not False) and (new_idx not in res):
+                for new_idx, bvar in enumerate(self.lit_list):
+                    if (bvar.get_sign() is not False) and (new_idx not in res):
                         res[i] = new_idx
         assert len(res) == 2
         c = res.count(None)
@@ -754,10 +754,10 @@ class Clause(object):
         elif c == 1:
             #propagatable
             idx = [x for x in res if x is not None][0]
-            propagatable_blit = self.bindlit_list[idx]
-            if propagatable_blit.get_sign() is None:
+            propagatable_bvar = self.lit_list[idx]
+            if propagatable_bvar.get_sign() is None:
                 # UNASSIGNED
-                return propagatable_blit
+                return propagatable_bvar
             else:
                 # ASSIGNED TRUE
                 return True
@@ -777,8 +777,8 @@ class Clause(object):
         assert all([isinstance(x,int)for x in wl]), str(wl)
         self.watching_literal = wl
 
-    def get_bindlit_list(self):
-        return self.bindlit_list
+    def get_lit_list(self):
+        return self.lit_list
 
     def is_learnt(self):
         return self._is_learnt is True
@@ -788,9 +788,9 @@ class Clause(object):
         Returns:
             [int or None, int or None]
             int -- the literal index
-            None -- the literal is assigned False, so the literal need reload
+            None -- the literal is assigned False, so the variable need reload
         """
-        return [None if self.bindlit_list[x].get_sign()is False else x for x in self.watching_literal]
+        return [None if self.lit_list[x].get_sign() is False else x for x in self.watching_literal]
 
     @classmethod
     def _gen_id(cls):
@@ -798,33 +798,33 @@ class Clause(object):
         return cls._num
 
     def __len__(self):
-        return len(self.bindlit_list)
+        return len(self.lit_list)
 
     def __str__(self):
-        return "{id:3d} :{watching}:{learnt}: {lits}".format(
+        return "{id:3d} :{watching}:{learnt}: {vars}".format(
             id=self.id,
             watching=self.watching_literal,
-            lits=", ".join([str(x)for x in self.bindlit_list]),
+            vars=", ".join([str(x)for x in self.lit_list]),
             learnt="l"if self._is_learnt else "-"
         )
 
 
-class BindLit(object):
-    """bind literal and sign for clause
+class Lit(object):
+    """bind variable and sign for clause
     Attributes:
-        lit(Lit)
+        var(Var)
         _sign(bool)
     """
-    def __init__(self, lit, sign):
-        self.lit = lit
+    def __init__(self, var, sign):
+        self.var = var
         self._sign = sign
 
     def get_sign(self):
-        """return bindlit's sign and the literal's sign
+        """return lit's sign and the variable's sign
         Returns:
             bool
         """
-        s = self.lit.get_sign()
+        s = self.var.get_sign()
         if s is None:
             return None
         elif self._sign:
@@ -833,7 +833,7 @@ class BindLit(object):
             return not s
 
     def get_raw_sign(self):
-        """return the bindlit's sign
+        """return the lit's sign
         Returns:
             bool
         """
@@ -841,9 +841,9 @@ class BindLit(object):
 
     def __str__(self):
         if self._sign:
-            return " %2d"%self.lit.get_id()
+            return " %2d"%self.var.get_id()
         else:
-            return "-%2d"%self.lit.get_id()
+            return "-%2d"%self.var.get_id()
 
 
 def parse(string):
@@ -874,7 +874,7 @@ def parse(string):
             s.add(num)
         if len(s) == 0:
             return
-        bll = [solver.litlist.get_bind_lit(x)for x in s]
+        bll = [solver.varlist.get_bind_var(x)for x in s]
         return Clause(bll)
     pat = re.compile('\A[^pc]+')
     for line in string.splitlines():

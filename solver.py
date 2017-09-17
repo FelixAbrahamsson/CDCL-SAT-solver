@@ -1,8 +1,8 @@
+import sys
 import logging
 import random
 import argparse
 import re
-import timeit
 from multiprocessing import Pool, TimeoutError
 import time
 
@@ -944,14 +944,11 @@ def argument_parse():
     return parser.parse_args()
 
 def solve(solver):
-    start = timeit.default_timer()
     solver.solve()
-    stop = timeit.default_timer()
     if solver.print_solution:
         print(solver)
     solver.print_result()
     save_result(solver)
-    print("Time taken: " + str(stop-start))
     
 if __name__ == '__main__':
     arguments = argument_parse()
@@ -971,5 +968,7 @@ if __name__ == '__main__':
     res = pool.apply_async(solve, (solver,))
     try:
         res.get(timeout=arguments.time_out)
+        sys.exit(0)
     except TimeoutError:
         print("Timed out!")
+        sys.exit(1)

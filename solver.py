@@ -3,6 +3,8 @@ import random
 import argparse
 import re
 import timeit
+from multiprocessing import Pool, TimeoutError
+import time
 
 RESULT_FILE = open('result.txt','w')
 
@@ -48,7 +50,7 @@ class Solver(object):
         self.conflict_count = 0
         self.decide_count = 0
 
-        # sign when literal decided.
+        # sign when variable chosen to branch on (only affects 'order' and 'random' selection heuristics).
         self.ASSIGN_DEFAULT = True
         self.choose_type = "random"
 
@@ -76,7 +78,7 @@ class Solver(object):
 
         # If a learnt clause exceeds this length it will not be retained
         # Determines amount of CDCL to be used
-        self.learnt_clause_max_length = 1000
+        self.max_learnt_clause_length = 1000
 
 
     def precompute_jw(self):
@@ -139,7 +141,7 @@ class Solver(object):
                 else:
                     ## Backjump to the conflict
                     backjump_level, learnt_clause = self.analyze(conflict_clause)
-                    if (len(learnt_clause) <= self.learnt_clause_max_length):
+                    if (len(learnt_clause) <= self.max_learnt_clause_length):
                         ## Only add clause if it does not exceed max length
                         self.add_clause(learnt_clause)
                 self.cancel_until(backjump_level)
@@ -897,25 +899,60 @@ def argument_parse():
     parser = argparse.ArgumentParser(description="Sat Solver on Python")
     parser.add_argument('file',
                         type=open,
-                        help='cnf file name',
+                        help='Filename of formula in CNF'
                         )
     parser.add_argument('--choose-type',
                         choices=['random','order','jw','dlis'],
-                        help='variable selection',
-                        default='random',
+                        help='The variable selection heuristic. (default "random")',
+                        default='random'
                         )
     parser.add_argument('--assign-default',
                         type=bool,
-                        help='default decide',
+                        help='The default truth value to assign to a variable when branching. Only affects "random" and "order" heuristics. (default True)',
                         default=True
+                        )
+    parser.add_argument('--PL-interval',
+                        type=int,
+                        help='How often to apply pure literal: 0 for never, 1 for always, k >= 1 for every kth level. (default 1)',
+                        default=1
+                        )
+    parser.add_argument('--UP-interval',
+                        type=int,
+                        help='How often to apply unit propagation: 0 for never, 1 for always, k >= 1 for every kth level. (default 1)',
+                        default=1
+                        )
+    parser.add_argument('--restart-interval',
+                        type=int,
+                        help='How many conflicts before a random restart is applied: 0 for no random restarts. (default 1000)',
+                        default=1000,
+                        )
+    parser.add_argument('--max-learnt-clause-length',
+                        type=int,
+                        help='The maximum length of learnt clauses. This is used to vary the amount of CDCL applied. (default 1000)',
+                        default=1000,
+                        )
+    parser.add_argument('--time-out',
+                        type=int,
+                        help='Time-out in seconds. (default 300)',
+                        default=300,
                         )
     parser.add_argument('--result-path',
                         type=open,
-                        help='ouptput result path',
+                        help='Filepath to output solution. (optional)',
                         default=None,
                         )
     return parser.parse_args()
 
+def solve(solver):
+    start = timeit.default_timer()
+    solver.solve()
+    stop = timeit.default_timer()
+    if solver.print_solution:
+        print(solver)
+    solver.print_result()
+    save_result(solver)
+    print("Time taken: " + str(stop-start))
+    
 if __name__ == '__main__':
     arguments = argument_parse()
     string = arguments.file.read()
@@ -923,14 +960,16 @@ if __name__ == '__main__':
 
     solver.ASSIGN_DEFAULT = arguments.assign_default
     solver.choose_type = arguments.choose_type
+    solver.PL_interal  = None if arguments.PL_interval == 0 else arguments.PL_interval
+    solver.UP_interval = None if arguments.UP_interval == 0 else arguments.UP_interval
+    solver.restart_interval = arguments.restart_interval
+    solver.use_random_restart = (solver.restart_interval > 0)
+    solver.max_learnt_clause_length = arguments.max_learnt_clause_length
     RESULT_FILE = arguments.result_path
 
-    start = timeit.default_timer()
-    solver.solve()
-    stop = timeit.default_timer()
-    if solver.print_solution:
-        print(solver)
-
-    solver.print_result()
-    save_result(solver)
-    print("Time taken: " + str(stop-start))
+    pool = Pool(1)
+    res = pool.apply_async(solve, (solver,))
+    try:
+        res.get(timeout=arguments.time_out)
+    except TimeoutError:
+        print("Timed out!")

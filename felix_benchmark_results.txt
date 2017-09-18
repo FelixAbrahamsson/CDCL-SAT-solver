@@ -1,0 +1,372 @@
+Exhaustive UP & PL
+--choose-type=dlis --UP-interval=1 --PL-interval=1
+
+20 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [0.106]
+50 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [0.218]
+75 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [1.010]
+100 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [3.416]
+### TOTALS ###
+Instances solved [40] - Timed-out [0] - Average time(s) [1.188]
+
+UP & PL every 2nd level
+--choose-type=dlis --UP-interval=2 --PL-interval=2
+
+20 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [16.958]
+50 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [1], Timed-out [1], Remaining [8] (20%)        
+-ne Instances solved [1], Timed-out [2], Remaining [7] (30%)        
+-ne Instances solved [2], Timed-out [2], Remaining [6] (40%)        
+-ne Instances solved [2], Timed-out [3], Remaining [5] (50%)        
+-ne Instances solved [3], Timed-out [3], Remaining [4] (60%)        
+-ne Instances solved [3], Timed-out [4], Remaining [3] (70%)        
+-ne Instances solved [4], Timed-out [4], Remaining [2] (80%)        
+-ne Instances solved [5], Timed-out [4], Remaining [1] (90%)        
+-ne Instances solved [6], Timed-out [4], Remaining [0] (100%)        
+
+Average time(s) [122.607]
+75 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [1], Timed-out [1], Remaining [8] (20%)        
+-ne Instances solved [2], Timed-out [1], Remaining [7] (30%)        
+-ne Instances solved [2], Timed-out [2], Remaining [6] (40%)        
+-ne Instances solved [2], Timed-out [3], Remaining [5] (50%)        
+-ne Instances solved [2], Timed-out [4], Remaining [4] (60%)        
+-ne Instances solved [3], Timed-out [4], Remaining [3] (70%)        
+-ne Instances solved [3], Timed-out [5], Remaining [2] (80%)        
+-ne Instances solved [3], Timed-out [6], Remaining [1] (90%)        
+-ne Instances solved [4], Timed-out [6], Remaining [0] (100%)        
+
+Average time(s) [196.814]
+100 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [0], Timed-out [1], Remaining [9] (10%)        
+-ne Instances solved [1], Timed-out [1], Remaining [8] (20%)        
+-ne Instances solved [1], Timed-out [2], Remaining [7] (30%)        
+-ne Instances solved [1], Timed-out [3], Remaining [6] (40%)        
+-ne Instances solved [1], Timed-out [4], Remaining [5] (50%)        
+-ne Instances solved [1], Timed-out [5], Remaining [4] (60%)        
+-ne Instances solved [2], Timed-out [5], Remaining [3] (70%)        
+-ne Instances solved [3], Timed-out [5], Remaining [2] (80%)        
+-ne Instances solved [3], Timed-out [6], Remaining [1] (90%)        
+-ne Instances solved [3], Timed-out [7], Remaining [0] (100%)        
+
+Average time(s) [212.540]
+### TOTALS ###
+Instances solved [23] - Timed-out [17] - Average time(s) []
+
+
+UP & PL every 3rd level
+--choose-type=dlis --UP-interval=3 --PL-interval=3
+
+20 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [0.106]
+50 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [2.804]
+75 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [53.785]
+100 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [2], Timed-out [1], Remaining [7] (30%)        
+-ne Instances solved [3], Timed-out [1], Remaining [6] (40%)        
+-ne Instances solved [3], Timed-out [2], Remaining [5] (50%)        
+-ne Instances solved [3], Timed-out [3], Remaining [4] (60%)        
+-ne Instances solved [4], Timed-out [3], Remaining [3] (70%)        
+-ne Instances solved [5], Timed-out [3], Remaining [2] (80%)        
+-ne Instances solved [5], Timed-out [4], Remaining [1] (90%)        
+-ne Instances solved [6], Timed-out [4], Remaining [0] (100%)        
+
+Average time(s) [146.716]
+### TOTALS ###
+Instances solved [36] - Timed-out [4] - Average time(s) [56.503]
+
+Only PL
+--choose-type=dlis --UP-interval=0 --PL-interval=1
+
+20 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [5.472]
+50 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [2], Timed-out [1], Remaining [7] (30%)        
+-ne Instances solved [2], Timed-out [2], Remaining [6] (40%)        
+-ne Instances solved [2], Timed-out [3], Remaining [5] (50%)        
+-ne Instances solved [3], Timed-out [3], Remaining [4] (60%)        
+-ne Instances solved [3], Timed-out [4], Remaining [3] (70%)        
+-ne Instances solved [4], Timed-out [4], Remaining [2] (80%)        
+-ne Instances solved [4], Timed-out [5], Remaining [1] (90%)        
+-ne Instances solved [5], Timed-out [5], Remaining [0] (100%)        
+
+Average time(s) [162.091]
+75 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [3], Timed-out [1], Remaining [6] (40%)        
+-ne Instances solved [3], Timed-out [2], Remaining [5] (50%)        
+-ne Instances solved [3], Timed-out [3], Remaining [4] (60%)        
+-ne Instances solved [3], Timed-out [4], Remaining [3] (70%)        
+-ne Instances solved [3], Timed-out [5], Remaining [2] (80%)        
+-ne Instances solved [3], Timed-out [6], Remaining [1] (90%)        
+-ne Instances solved [4], Timed-out [6], Remaining [0] (100%)        
+
+Average time(s) [196.747]
+100 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [0], Timed-out [1], Remaining [9] (10%)        
+-ne Instances solved [0], Timed-out [2], Remaining [8] (20%)        
+-ne Instances solved [0], Timed-out [3], Remaining [7] (30%)        
+-ne Instances solved [0], Timed-out [4], Remaining [6] (40%)        
+-ne Instances solved [0], Timed-out [5], Remaining [5] (50%)        
+-ne Instances solved [0], Timed-out [6], Remaining [4] (60%)        
+-ne Instances solved [1], Timed-out [6], Remaining [3] (70%)        
+-ne Instances solved [1], Timed-out [7], Remaining [2] (80%)        
+-ne Instances solved [1], Timed-out [8], Remaining [1] (90%)        
+-ne Instances solved [1], Timed-out [9], Remaining [0] (100%)        
+
+Average time(s) [270.372]
+### TOTALS ###
+Instances solved [20] - Timed-out [20] - Average time(s) [317.341]
+
+Only UP
+--choose-type=dlis --UP-interval=1 --PL-interval=0
+
+20 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [0.096]
+50 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [0.187]
+75 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [0.929]
+100 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [3.280]
+### TOTALS ###
+Instances solved [40] - Timed-out [0] - Average time(s) [1.123]
+
+No UP, No PL
+--choose-type=dlis --UP-interval=0 --PL-interval=0
+
+20 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [4], Timed-out [0], Remaining [6] (40%)        
+-ne Instances solved [5], Timed-out [0], Remaining [5] (50%)        
+-ne Instances solved [6], Timed-out [0], Remaining [4] (60%)        
+-ne Instances solved [7], Timed-out [0], Remaining [3] (70%)        
+-ne Instances solved [8], Timed-out [0], Remaining [2] (80%)        
+-ne Instances solved [9], Timed-out [0], Remaining [1] (90%)        
+-ne Instances solved [10], Timed-out [0], Remaining [0] (100%)        
+
+Average time(s) [5.303]
+50 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [2], Timed-out [1], Remaining [7] (30%)        
+-ne Instances solved [2], Timed-out [2], Remaining [6] (40%)        
+-ne Instances solved [2], Timed-out [3], Remaining [5] (50%)        
+-ne Instances solved [3], Timed-out [3], Remaining [4] (60%)        
+-ne Instances solved [3], Timed-out [4], Remaining [3] (70%)        
+-ne Instances solved [4], Timed-out [4], Remaining [2] (80%)        
+-ne Instances solved [4], Timed-out [5], Remaining [1] (90%)        
+-ne Instances solved [5], Timed-out [5], Remaining [0] (100%)        
+
+Average time(s) [161.917]
+75 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [1], Timed-out [0], Remaining [9] (10%)        
+-ne Instances solved [2], Timed-out [0], Remaining [8] (20%)        
+-ne Instances solved [3], Timed-out [0], Remaining [7] (30%)        
+-ne Instances solved [3], Timed-out [1], Remaining [6] (40%)        
+-ne Instances solved [3], Timed-out [2], Remaining [5] (50%)        
+-ne Instances solved [3], Timed-out [3], Remaining [4] (60%)        
+-ne Instances solved [3], Timed-out [4], Remaining [3] (70%)        
+-ne Instances solved [3], Timed-out [5], Remaining [2] (80%)        
+-ne Instances solved [3], Timed-out [6], Remaining [1] (90%)        
+-ne Instances solved [4], Timed-out [6], Remaining [0] (100%)        
+
+Average time(s) [196.516]
+100 variables
+-ne Instances solved [0] - Timed-out [0] - Remaining [10] (0%)         
+-ne Instances solved [0], Timed-out [1], Remaining [9] (10%)        
+-ne Instances solved [0], Timed-out [2], Remaining [8] (20%)        
+-ne Instances solved [0], Timed-out [3], Remaining [7] (30%)        
+-ne Instances solved [0], Timed-out [4], Remaining [6] (40%)        
+-ne Instances solved [0], Timed-out [5], Remaining [5] (50%)        
+-ne Instances solved [0], Timed-out [6], Remaining [4] (60%)        
+-ne Instances solved [1], Timed-out [6], Remaining [3] (70%)        
+-ne Instances solved [1], Timed-out [7], Remaining [2] (80%)        
+-ne Instances solved [1], Timed-out [8], Remaining [1] (90%)        
+-ne Instances solved [1], Timed-out [9], Remaining [0] (100%)        
+
+Average time(s) [270.377]
+### TOTALS ###
+Instances solved [20] - Timed-out [20] - Average time(s) [317.057]

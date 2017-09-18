@@ -1,10 +1,35 @@
-Benchmarking on 40 instances...
 Variable selection: DLIS
 --choose-type=dlis
-Instances solved [40], Timed-out [0], Remaining [0] (100%)         
-Average time(s) [0.98]
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.060]
+50 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.145]
+75 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.788]
+100 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [2.803]
+### TOTALS ###
+Instances solved [40] - Timed-out [0] - Average time(s) [0.949]
 
 Variable selection: Jeroslow-Wang
 --choose-type=jw
-Instances solved [40], Timed-out [0], Remaining [0] (100%)         
-Average time(s) [1.43]
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.056]
+50 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.161]
+75 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.832]
+100 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [4.500]
+### TOTALS ###
+Instances solved [40] - Timed-out [0] - Average time(s) [1.387]

@@ -33,3 +33,58 @@ Instances solved [10], Timed-out [0], Remaining [0] (100%)
 Average time(s) [4.500]
 ### TOTALS ###
 Instances solved [40] - Timed-out [0] - Average time(s) [1.387]
+
+
+Large amount of CDCL
+--choose-type=dlis --max-learnt-clause-length=1000
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.059]
+50 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.147]
+75 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.786]
+100 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [2.796]
+### TOTALS ###
+Instances solved [40] - Timed-out [0] - Average time(s) [0.947]
+
+Small amount of CDCL
+--choose-type=dlis --max-learnt-clause-length=5
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.056]
+50 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.500]
+75 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [25.432]
+100 variables
+Instances solved [5], Timed-out [5], Remaining [0] (100%)          
+Average time(s) [161.866]
+### TOTALS ###
+Instances solved [35] - Timed-out [5] - Average time(s) [46.964]
+
+No CDCL
+--choose-type=dlis --max-learnt-clause-length=0
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [1.894]
+50 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [12.563]
+75 variables
+Instances solved [6], Timed-out [4], Remaining [0] (100%)               
+Average time(s) [171.652]
+100 variables
+Instances solved [4], Timed-out [6], Remaining [0] (100%)          
+Average time(s) [198.230]
+### TOTALS ###
+Instances solved [30] - Timed-out [10] - Average time(s) [96.085]

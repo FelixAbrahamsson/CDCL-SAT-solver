@@ -1,0 +1,10 @@
+Benchmarking on 40 instances...
+Variable selection: DLIS
+--choose-type=dlis
+Instances solved [40], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.98]
+
+Variable selection: Jeroslow-Wang
+--choose-type=jw
+Instances solved [40], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [1.43]

@@ -88,3 +88,76 @@ Instances solved [4], Timed-out [6], Remaining [0] (100%)
 Average time(s) [198.230]
 ### TOTALS ###
 Instances solved [30] - Timed-out [10] - Average time(s) [96.085]
+
+
+Exhaustive UP and PL
+--choose-type=dlis --UP-interval=1 --PL-interval=1
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.061]
+50 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.155]
+75 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.807]
+100 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [2.619]
+### TOTALS ###
+Instances solved [40] - Timed-out [0] - Average time(s) [0.910]
+
+UP & PL every 2nd level
+--choose-type=dlis --UP-interval=2 --PL-interval=2
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [15.758]
+50 variables
+Instances solved [7], Timed-out [3], Remaining [0] (100%)          
+Average time(s) [118.800]
+75 variables
+Instances solved [4], Timed-out [6], Remaining [0] (100%)          
+Average time(s) [187.274]
+100 variables
+Instances solved [2], Timed-out [8], Remaining [0] (100%)                
+Average time(s) [254.088]
+### TOTALS ###
+Instances solved [23] - Timed-out [17] - Average time(s) [250.400]
+
+Only PL
+--choose-type=dlis --UP-interval=0 --PL-interval=1
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [7.697]
+50 variables
+Instances solved [5], Timed-out [5], Remaining [0] (100%)          
+Average time(s) [150.793]
+75 variables
+Instances solved [3], Timed-out [7], Remaining [0] (100%)          
+Average time(s) [212.522]
+100 variables
+Instances solved [1], Timed-out [9], Remaining [0] (100%)          
+Average time(s) [270.158]
+### TOTALS ###
+Instances solved [19] - Timed-out [21] - Average time(s) [337.458]
+
+Only UP
+--choose-type=dlis --UP-interval=1 --PL-interval=0
+
+20 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.054]
+50 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.147]
+75 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [0.875]
+100 variables
+Instances solved [10], Timed-out [0], Remaining [0] (100%)         
+Average time(s) [2.549]
+### TOTALS ###
+Instances solved [40] - Timed-out [0] - Average time(s) [0.906]

@@ -64,19 +64,26 @@ suite_benchmark () {
  echo "Average time(s) [$average]"
 }
 
+echo "Variable selection: DLIS"
+benchmark "--choose-type=dlis"
+echo "Variable selection: Jeroslow-Wang"
+benchmark "--choose-type=jw"
+echo ""
+
+echo "Large amount of CDCL"
+benchmark "--choose-type=dlis --max-learnt-clause-length=1000"
+echo "Small amount of CDCL"
+benchmark "--choose-type=dlis --max-learnt-clause-length=5"
+echo "No CDCL"
+benchmark "--choose-type=dlis --max-learnt-clause-length=0"
+echo ""
+
 echo "Exhaustive UP and PL"
 benchmark "--choose-type=dlis --UP-interval=1 --PL-interval=1"
-
 echo "UP & PL every 2nd level"
 benchmark "--choose-type=dlis --UP-interval=2 --PL-interval=2"
-
 echo "Only PL"
 benchmark "--choose-type=dlis --UP-interval=0 --PL-interval=1"
-
 echo "Only UP"
 benchmark "--choose-type=dlis --UP-interval=1 --PL-interval=0"
-
-echo "No UP, No PL"
-benchmark "--choose-type=dlis --UP-interval=0 --PL-interval=0"
-
-
+echo ""

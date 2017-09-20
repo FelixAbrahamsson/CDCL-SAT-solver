@@ -11,8 +11,10 @@ Both benchmark.sh and myrun.sh assume python3.6 is installed. They may work for 
 ## Source for pysat:
 
 https://github.com/cocuh/pysat
+This source code is contained in pysat_raw_source.py
 
 ## Benchmark instances:
 
 http://www.cs.ubc.ca/~hoos/SATLIB/benchm.html
+The appropriate benchmark instances are downloaded by the myrun.sh and benchmark.sh scripts
 

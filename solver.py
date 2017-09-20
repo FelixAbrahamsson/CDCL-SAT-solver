@@ -52,14 +52,14 @@ class Solver(object):
 
         # sign when variable chosen to branch on (only affects 'order' and 'random' selection heuristics).
         self.ASSIGN_DEFAULT = True
-        self.choose_type = "random"
+        self.choose_type = "dlis"
 
         # J function for the Jeroslow-Wang heuristic
         # represented as a dictionary from l = (variable id, sign) to J(l)
         self.jw = {}
 
         # True/False determines whether to print the solution after solving
-        self.print_solution = False
+        self.print_solution = True
 
         # Integer, determines how often pure literal rule should be applied
         # If None, it's never applied
@@ -576,11 +576,11 @@ class Solver(object):
 
     def __str__(self):
         string = "###############level:%d root_level:%d\n"%(self.level, self.root_level)
-        string += "####Varerals\n"+"\n".join([str(x)for x in self.varlist])
+        string += "####Variables\n"+"\n".join([str(x)for x in self.varlist])
         string += "\n\n"
         string += "####Clauses\n"+"\n".join([str(x)for x in self.clause_list])
         string += "\n\n"
-        string += "####Learnts\n"+"\n".join([str(x)for x in self.learnt_list])
+        string += "####Learnt clauses\n"+"\n".join([str(x)for x in self.learnt_list])
         string += "\n\n"
         string += "####Tree\n"
         string += self._str_history()
@@ -903,8 +903,8 @@ def argument_parse():
                         )
     parser.add_argument('--choose-type',
                         choices=['random','order','jw','dlis'],
-                        help='The variable selection heuristic. (default "random")',
-                        default='random'
+                        help='The variable selection heuristic. (default "dlis")',
+                        default='dlis'
                         )
     parser.add_argument('--assign-default',
                         type=bool,
@@ -957,7 +957,7 @@ if __name__ == '__main__':
 
     solver.ASSIGN_DEFAULT = arguments.assign_default
     solver.choose_type = arguments.choose_type
-    solver.PL_interal  = None if arguments.PL_interval == 0 else arguments.PL_interval
+    solver.PL_interval = None if arguments.PL_interval == 0 else arguments.PL_interval
     solver.UP_interval = None if arguments.UP_interval == 0 else arguments.UP_interval
     solver.restart_interval = arguments.restart_interval
     solver.use_random_restart = (solver.restart_interval > 0)
